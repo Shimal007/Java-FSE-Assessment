@@ -7,5 +7,6 @@ public class Main {
         int years = 10;
         double annualGrowthRate = 0.05;
         System.out.println(fc.calculateForecast(currentBalance, years, annualGrowthRate));
+        System.out.println(Memoization.optimize(currentBalance, years, annualGrowthRate));
     }
 }
