@@ -1,0 +1,826 @@
+Perfect. I'll explain it exactly as you would in an interview or to your SME.
+
+Task
+
+Create a REST API
+
+GET /countries/{code}
+
+Example
+
+http://localhost:8083/countries/in
+
+Response
+
+{
+    "code":"IN",
+    "name":"India"
+}
+Project Structure
+spring-learn
+│
+├── src
+│
+├── main
+│   │
+│   ├── java
+│   │
+│   │── com.cognizant.spring_learn
+│       │
+│       ├── controller
+│       │      CountryController.java
+│       │
+│       ├── service
+│       │      CountryService.java
+│       │
+│       ├── model
+│       │      Country.java
+│       │
+│       └── SpringLearnApplication.java
+│
+└── resources
+      │
+      ├── application.properties
+      └── country.xml
+Step 1 : Model
+
+Location
+
+model/Country.java
+package com.cognizant.spring_learn.model;
+
+public class Country {
+
+    private String code;
+    private String name;
+
+    public Country() {
+    }
+
+    public Country(String code, String name) {
+        this.code = code;
+        this.name = name;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+}
+Why this class?
+
+This is called a POJO (Plain Old Java Object).
+
+It stores data.
+
+Think of it like a box.
+
+Country
+
+-------------
+code
+
+name
+-------------
+
+It contains
+
+variables
+constructors
+getters
+setters
+
+No logic.
+
+Step 2 : country.xml
+
+Location
+
+resources/country.xml
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="countryList" class="java.util.ArrayList">
+
+        <constructor-arg>
+
+            <list>
+
+                <bean class="com.cognizant.spring_learn.model.Country">
+                    <property name="code" value="IN"/>
+                    <property name="name" value="India"/>
+                </bean>
+
+                <bean class="com.cognizant.spring_learn.model.Country">
+                    <property name="code" value="US"/>
+                    <property name="name" value="United States"/>
+                </bean>
+
+                <bean class="com.cognizant.spring_learn.model.Country">
+                    <property name="code" value="JP"/>
+                    <property name="name" value="Japan"/>
+                </bean>
+
+                <bean class="com.cognizant.spring_learn.model.Country">
+                    <property name="code" value="CN"/>
+                    <property name="name" value="China"/>
+                </bean>
+
+            </list>
+
+        </constructor-arg>
+
+    </bean>
+
+</beans>
+What is happening here?
+
+Spring reads this XML.
+
+Internally it creates
+
+ArrayList<Country> list = new ArrayList<>();
+
+Then
+
+Country c1 = new Country();
+
+c1.setCode("IN");
+c1.setName("India");
+
+Then
+
+Country c2 = new Country();
+
+c2.setCode("US");
+
+c2.setName("United States");
+
+Likewise
+
+Japan
+
+China
+
+Finally
+
+list.add(c1);
+
+list.add(c2);
+
+list.add(c3);
+
+list.add(c4);
+
+Spring stores this list inside the IoC Container.
+
+Step 3 : Service
+
+Location
+
+service/CountryService.java
+package com.cognizant.spring_learn.service;
+
+import com.cognizant.spring_learn.model.Country;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class CountryService {
+
+    public Country getCountry(String code) {
+
+        ApplicationContext context =
+                new ClassPathXmlApplicationContext("country.xml");
+
+        List<Country> countries =
+                context.getBean("countryList", List.class);
+
+        for (Country country : countries) {
+
+            if (country.getCode().equalsIgnoreCase(code)) {
+
+                return country;
+
+            }
+
+        }
+
+        return null;
+    }
+
+}
+Why Service?
+
+Because searching is business logic.
+
+Controller should not search.
+
+Service should.
+
+Line 1
+ApplicationContext context =
+new ClassPathXmlApplicationContext("country.xml");
+
+Spring opens
+
+country.xml
+
+Reads all beans.
+
+Creates objects.
+
+Line 2
+List<Country> countries =
+context.getBean("countryList", List.class);
+
+Gets
+
+ArrayList
+
+↓
+
+India
+
+USA
+
+Japan
+
+China
+Loop
+for(Country country:countries)
+
+Visits
+
+India
+
+↓
+
+USA
+
+↓
+
+Japan
+
+↓
+
+China
+Comparison
+country.getCode().equalsIgnoreCase(code)
+
+Suppose URL
+
+/countries/in
+
+Then
+
+IN.equalsIgnoreCase("in")
+
+↓
+
+true
+
+Returns
+
+India.
+
+Step 4 : Controller
+
+Location
+
+controller/CountryController.java
+package com.cognizant.spring_learn.controller;
+
+import com.cognizant.spring_learn.model.Country;
+import com.cognizant.spring_learn.service.CountryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class CountryController {
+
+    @Autowired
+    private CountryService countryService;
+
+    @GetMapping("/countries/{code}")
+    public Country getCountry(@PathVariable String code) {
+
+        return countryService.getCountry(code);
+
+    }
+
+}
+What happens?
+
+Suppose user enters
+
+http://localhost:8083/countries/in
+
+Spring sees
+
+@GetMapping("/countries/{code}")
+
+Here
+
+{code}
+
+means
+
+Variable.
+
+Spring automatically extracts
+
+in
+
+and passes
+
+@PathVariable String code
+
+Now
+
+code = "in"
+
+Controller immediately calls
+
+countryService.getCountry(code);
+
+Controller does not know
+
+XML
+List
+Search
+
+Nothing.
+
+It only forwards the request.
+
+Step 5
+
+Run
+
+SpringLearnApplication.java
+@SpringBootApplication
+public class SpringLearnApplication {
+
+    public static void main(String[] args) {
+
+        SpringApplication.run(SpringLearnApplication.class,args);
+
+    }
+
+}
+Flow
+
+Suppose browser requests
+
+http://localhost:8083/countries/in
+
+Complete execution
+
+Browser
+
+↓
+
+GET /countries/in
+
+↓
+
+Tomcat
+
+↓
+
+DispatcherServlet
+
+↓
+
+CountryController
+
+↓
+
+@PathVariable
+
+↓
+
+code = "in"
+
+↓
+
+CountryService
+
+↓
+
+Load country.xml
+
+↓
+
+Create Country List
+
+↓
+
+Loop
+
+↓
+
+Compare
+
+↓
+
+Find India
+
+↓
+
+Return Country Object
+
+↓
+
+DispatcherServlet
+
+↓
+
+Jackson Library
+
+↓
+
+Convert Object → JSON
+
+↓
+
+Browser
+JSON Produced
+{
+    "code":"IN",
+    "name":"India"
+}
+Why @Autowired?
+@Autowired
+
+CountryService service;
+
+Instead of
+
+CountryService service = new CountryService();
+
+Spring creates the CountryService object for you and injects it into the controller. This is called Dependency Injection (DI).
+
+Why @Service?
+@Service
+
+It tells Spring:
+
+"Create an object of this class and manage it as a Spring bean."
+
+That allows @Autowired to inject it into the controller.
+
+Why @RestController?
+
+@RestController combines two annotations:
+
+@Controller
+@ResponseBody
+
+@ResponseBody tells Spring to write the returned Country object directly into the HTTP response. Spring uses Jackson to convert it into JSON automatically.
+
+Interview Explanation (1 minute)
+
+When the client sends a GET request to /countries/{code}, the request is received by the DispatcherServlet, which maps it to CountryController. The @PathVariable extracts the country code from the URL. The controller delegates the request to CountryService. The service loads country.xml, retrieves the countryList bean from the Spring IoC container, iterates through the list using equalsIgnoreCase() to perform a case-insensitive search, and returns the matching Country object. The controller returns this object, and Spring Boot uses Jackson to serialize it into a JSON response that is sent back to the client.
+
+2026-07-11T09:33:23.417+05:30  INFO 11352 --- [spring-learn] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-11T09:33:23.418+05:30  INFO 11352 --- [spring-learn] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-07-11T09:33:23.497+05:30  INFO 11352 --- [spring-learn] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1666 ms
+2026-07-11T09:33:23.616+05:30  WARN 11352 --- [spring-learn] [  restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'countryController': Unsatisfied dependency expressed through field 'countryService': No qualifying bean of type 'com.cognizant.spring_learn.service.CountryService' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {@org.springframework.beans.factory.annotation.Autowired(required=true)}
+2026-07-11T09:33:23.624+05:30  INFO 11352 --- [spring-learn] [  restartedMain] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-07-11T09:33:23.652+05:30  INFO 11352 --- [spring-learn] [  restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-07-11T09:33:23.679+05:30 ERROR 11352 --- [spring-learn] [  restartedMain] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Field countryService in com.cognizant.spring_learn.controller.CountryController required a bean of type 'com.cognizant.spring_learn.service.CountryService' that could not be found.
+
+The injection point has the following annotations:
+	- @org.springframework.beans.factory.annotation.Autowired(required=true)
+
+
+Action:
+
+Consider defining a bean of type 'com.cognizant.spring_learn.service.CountryService' in your configuration.
+
+
+Process finished with exit code 0
+2026-07-11T09:33:23.417+05:30  INFO 11352 --- [spring-learn] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-11T09:33:23.418+05:30  INFO 11352 --- [spring-learn] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-07-11T09:33:23.497+05:30  INFO 11352 --- [spring-learn] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1666 ms
+2026-07-11T09:33:23.616+05:30  WARN 11352 --- [spring-learn] [  restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'countryController': Unsatisfied dependency expressed through field 'countryService': No qualifying bean of type 'com.cognizant.spring_learn.service.CountryService' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {@org.springframework.beans.factory.annotation.Autowired(required=true)}
+2026-07-11T09:33:23.624+05:30  INFO 11352 --- [spring-learn] [  restartedMain] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-07-11T09:33:23.652+05:30  INFO 11352 --- [spring-learn] [  restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-07-11T09:33:23.679+05:30 ERROR 11352 --- [spring-learn] [  restartedMain] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Field countryService in com.cognizant.spring_learn.controller.CountryController required a bean of type 'com.cognizant.spring_learn.service.CountryService' that could not be found.
+
+The injection point has the following annotations:
+	- @org.springframework.beans.factory.annotation.Autowired(required=true)
+
+
+Action:
+
+Consider defining a bean of type 'com.cognizant.spring_learn.service.CountryService' in your configuration.
+
+
+Process finished with exit code 0
+what error
+
+The error is:
+
+No qualifying bean of type
+'com.cognizant.spring_learn.service.CountryService'
+available
+
+This means Spring could not create a CountryService object, so when it reached:
+
+@Autowired
+private CountryService countryService;
+
+it had nothing to inject.
+
+Possible Cause 1: Missing @Service (Most Common)
+
+Open CountryService.java.
+
+Make sure it has:
+
+package com.cognizant.spring_learn.service;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class CountryService {
+
+    // methods
+}
+
+If @Service is missing, Spring does not recognize it as a bean.
+
+Possible Cause 2: Wrong Package
+
+Check the package declaration at the top of CountryService.java.
+
+It must be:
+
+package com.cognizant.spring_learn.service;
+
+If it is something like:
+
+package com.cognizant.springlearn.service;
+
+or
+
+package com.cognizant.service;
+
+Spring won't find it.
+
+Possible Cause 3: Service Outside Component Scan
+
+Your project should look like this:
+
+com.cognizant.spring_learn
+│
+├── SpringLearnApplication.java
+├── controller
+│     └── CountryController.java
+├── service
+│     └── CountryService.java
+└── model
+      └── Country.java
+
+SpringLearnApplication.java should be in the parent package:
+
+package com.cognizant.spring_learn;
+
+@SpringBootApplication
+public class SpringLearnApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(SpringLearnApplication.class, args);
+    }
+}
+
+If your application class is in another package, Spring may not scan the service package.
+
+Possible Cause 4: Compilation Error in CountryService
+
+If CountryService.java has compile errors, Spring cannot create the bean.
+
+Look for any red underlines or build errors in that file.
+
+What Should Your Files Look Like?
+CountryController.java
+@RestController
+public class CountryController {
+
+    @Autowired
+    private CountryService countryService;
+
+    @GetMapping("/countries/{code}")
+    public Country getCountry(@PathVariable String code) {
+        return countryService.getCountry(code);
+    }
+}
+CountryService.java
+package com.cognizant.spring_learn.service;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class CountryService {
+
+    public Country getCountry(String code) {
+        return null;
+    }
+}
+I Need These 3 Files
+
+To identify the exact issue, please paste these files:
+
+CountryService.java
+CountryController.java
+SpringLearnApplication.java
+
+The error will likely be obvious once I see them.
+
+what is the autowired ans service
+
+These are two of the most important annotations in Spring. Let's understand them with a simple example.
+
+What is @Service?
+
+@Service tells Spring:
+
+"This class contains business logic. Please create and manage one object (bean) of this class."
+
+Example:
+
+package com.cognizant.spring_learn.service;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class CountryService {
+
+    public String getCountry() {
+        return "India";
+    }
+}
+
+When Spring Boot starts, it sees @Service.
+
+Internally, Spring does something like:
+
+CountryService service = new CountryService();
+
+and stores this object in the Spring IoC Container.
+
+Spring IoC Container
+--------------------------
+CountryService Object
+--------------------------
+
+Without @Service, Spring does not create this object.
+
+What is @Autowired?
+
+@Autowired tells Spring:
+
+"I need an object of this class. If you've already created one, inject it here."
+
+Example:
+
+@RestController
+public class CountryController {
+
+    @Autowired
+    private CountryService countryService;
+
+}
+
+Spring sees @Autowired.
+
+It checks its IoC container:
+
+IoC Container
+
+CountryService Object
+
+It finds the object and assigns it automatically:
+
+countryService = existingCountryServiceObject;
+
+Now you can call:
+
+countryService.getCountry(code);
+
+without creating the object yourself.
+
+Without @Autowired
+
+You would have to write:
+
+CountryService countryService = new CountryService();
+
+This is called manual object creation.
+
+With @Autowired
+
+You simply write:
+
+@Autowired
+CountryService countryService;
+
+Spring creates the object and injects it for you. This is called Dependency Injection (DI).
+
+How @Service and @Autowired work together
+Application Starts
+        │
+        ▼
+Spring scans project
+        │
+        ▼
+@Service found
+        │
+        ▼
+Creates CountryService object
+        │
+        ▼
+Stores it in IoC Container
+        │
+        ▼
+@RestController found
+        │
+        ▼
+@Autowired CountryService
+        │
+        ▼
+Spring injects the existing CountryService object
+Real-Life Analogy
+
+Imagine a company.
+
+@Service → An employee is hired and added to the company.
+IoC Container → The company's employee database.
+@Autowired → Another department asks, "I need the CountryService employee." The company assigns the existing employee instead of hiring a new one.
+Why use them?
+
+Without Spring:
+
+CountryService service = new CountryService();
+
+With Spring:
+
+@Autowired
+CountryService service;
+
+Benefits:
+
+You don't create objects manually.
+Objects are reused.
+Classes are loosely coupled.
+Easier to test and maintain.
+Interview Answer
+What is @Service?
+
+@Service is a Spring stereotype annotation that marks a class as the service layer. It tells Spring to create and manage an instance of that class as a bean in the IoC container.
+
+What is @Autowired?
+
+@Autowired is used for dependency injection. It tells Spring to automatically inject a required bean from the IoC container instead of creating the object manually with new.
