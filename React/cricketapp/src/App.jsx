@@ -25,7 +25,7 @@ function App() {
     { name: "Rohit", score: 80 }
   ];
 
-  const flag = true;
+  const flag = false;
 
   if (flag) {
     return (
