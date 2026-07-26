@@ -1,0 +1,12 @@
+<div class="profile-container">
+  <h2>Student Profile</h2>
+  <p>Enrolled courses:</p>
+  <div *ngIf="enrolledCourses.length > 0">
+    <ul>
+      <li *ngFor="let course of enrolledCourses">
+        <strong>{{ course.name }}</strong> ({{ course.code }}) - Credits: {{ course.credits }} - Status: {{ course.gradeStatus }}
+      </li>
+    </ul>
+  </div>
+  <p *ngIf="enrolledCourses.length === 0">No courses enrolled yet.</p>
+</div>

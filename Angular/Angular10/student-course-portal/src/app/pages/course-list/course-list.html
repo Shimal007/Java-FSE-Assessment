@@ -1,0 +1,38 @@
+<h2>Available Courses</h2>
+
+<div class="search-container">
+  <input
+    type="text"
+    placeholder="Search courses..."
+    [(ngModel)]="searchTerm"
+    (input)="onSearchChange()"
+    class="search-input">
+</div>
+
+<div class="crud-controls" style="margin-bottom: 20px;">
+  <button (click)="testCreate()">Test Create Course</button>
+  <button *ngIf="courses.length > 0" (click)="testUpdate(courses[0].id)" style="margin-left: 10px;">Test Update First Course</button>
+  <button *ngIf="courses.length > 0" (click)="testDelete(courses[0].id)" style="margin-left: 10px;">Test Delete First Course</button>
+</div>
+
+<p *ngIf="isLoading">Loading courses...</p>
+<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+
+<div *ngIf="!isLoading && !errorMessage">
+  <ng-container *ngIf="courses.length; else noCourses">
+    <app-course-card
+      *ngFor="let course of courses; let i = index; trackBy: trackByCourseId"
+      [course]="course"
+      (enrollRequested)="onEnroll($event)"
+      appHighlight="lightblue">
+    </app-course-card>
+  </ng-container>
+
+  <ng-template #noCourses>
+    <p>No courses available.</p>
+  </ng-template>
+</div>
+
+<p *ngIf="selectedCourseId">
+  Selected Course ID: {{ selectedCourseId }}
+</p>

@@ -1,0 +1,33 @@
+.summary-widget {
+  padding: 1rem;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  margin: 1rem 0;
+}
+
+.summary-widget h3 {
+  margin-top: 0;
+  color: #007bff;
+}
+
+.summary-widget button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.summary-widget button:hover {
+  background-color: #0056b3;
+}
+
+.hint {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin-top: 0.5rem;
+  font-style: italic;
+}

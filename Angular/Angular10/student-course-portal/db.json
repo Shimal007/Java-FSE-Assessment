@@ -1,0 +1,43 @@
+{
+  "courses": [
+    {
+      "name": "Updated Course Name",
+      "id": "1"
+    },
+    {
+      "name": "Updated Course Name",
+      "id": "2"
+    },
+    {
+      "id": "3",
+      "name": "Database Systems",
+      "code": "DB301",
+      "credits": 3,
+      "gradeStatus": "passed"
+    },
+    {
+      "id": "4",
+      "name": "Machine Learning",
+      "code": "ML401",
+      "credits": 4,
+      "gradeStatus": "failed"
+    },
+    {
+      "id": "5",
+      "name": "Cloud Computing",
+      "code": "CC501",
+      "credits": 3,
+      "gradeStatus": "pending"
+    },
+    {
+      "name": "New Test Course",
+      "code": "TEST101",
+      "credits": 3,
+      "gradeStatus": "pending",
+      "id": "Fp9ND7IyQ9Q"
+    }
+  ],
+  "students": [],
+  "enrollments": [],
+  "$schema": "./node_modules/json-server/schema.json"
+}

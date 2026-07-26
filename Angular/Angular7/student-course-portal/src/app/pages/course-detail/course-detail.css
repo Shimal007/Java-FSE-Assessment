@@ -1,0 +1,26 @@
+.course-detail {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.course-detail h1 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.course-detail p {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.course-detail a {
+  display: inline-block;
+  margin-top: 1.5rem;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.course-detail a:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,50 @@
+.card {
+  border: 1px solid #d0d7de;
+  border-left: 6px solid #9ca3af;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 12px 0;
+  background-color: #fff;
+  transition: all 0.2s ease;
+}
+
+.card--enrolled {
+  box-shadow: 0 0 0 2px #93c5fd;
+}
+
+.card--full {
+  background-color: #f8fafc;
+}
+
+.expanded {
+  min-height: 140px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin: 6px 0 10px;
+}
+
+.badge.passed {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.badge.failed {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.badge.pending {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.details {
+  color: #475569;
+  font-style: italic;
+}
